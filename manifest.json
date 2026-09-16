@@ -1,0 +1,18 @@
+{
+  "name": "Air Arabia PA Console",
+  "short_name": "Air Arabia PA",
+  "description": "Air Arabia Ground Operations PA Console – HD Neural voices",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1B2529",
+  "theme_color": "#E81142",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23E81142' width='100' height='100' rx='20'/><text y='68' font-size='42' x='50' text-anchor='middle' fill='white' font-family='Arial' font-weight='700'>G9</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
