@@ -1,0 +1,10 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {buildScript,validateFlight,types,validScript,RunGuard} from '../src/core.js';
+const d={station:'DMM',flight:'G9 168',gate:'12',origin:'DMM',destination:'SHJ',airline:'Air Arabia',greeting:'evening',zone:'B + C',rowFrom:14,rowTo:28,delayMinutes:30,etd:'23:45',passenger:'TEST PASSENGER'};
+test('every template renders all three languages without missing fields',()=>{for(const [type]of types)for(const lang of ['en','ar','ur']){const text=buildScript(d,type,lang);if(type!=='custom')assert.ok(validScript(text),`${type}/${lang}: ${text}`);}});
+test('airport names localise and Dammam airline name is supported',()=>{const text=buildScript({...d,airline:'Air Arabia Dammam'},'first','ar');assert.match(text,/الدمام/);assert.match(text,/الشارقة/);assert.match(text,/العربية للطيران/);});
+test('any station can use city names and zones remain operator selected',()=>{assert.deepEqual(validateFlight({...d,station:'AAA',origin:'Example City'},'zone'),[]);assert.match(buildScript(d,'zone','en'),/B\s+and\s+C/);});
+test('missing flight, same airport, invalid rows and unconfirmed ETD are blocked',()=>{assert.ok(validateFlight({...d,flight:''},'first').length);assert.ok(validateFlight({...d,destination:'DMM'},'first').length);assert.ok(validateFlight({...d,rowFrom:30,rowTo:10},'rows').length);assert.ok(validateFlight({...d,etd:''},'delayFull').length);});
+test('cancelling during generation invalidates completion and aborts request',()=>{const g=new RunGuard(),first=g.start();g.stop();assert.equal(first.signal.aborted,true);assert.throws(()=>g.assert(first.revision),{name:'AbortError'});const second=g.start();assert.doesNotThrow(()=>g.assert(second.revision));});
+test('custom scripts reject unresolved values and excess length',()=>{assert.equal(validScript('Flight {flight}'),false);assert.equal(validScript('x'.repeat(2501)),false);assert.equal(validScript('الرجاء التوجه إلى البوابة'),true);});

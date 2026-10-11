@@ -1,0 +1,7 @@
+const DB='station-pa-audio-v5',MAX_BYTES=30*1024*1024,MAX_ITEMS=40;
+function open(){return new Promise((resolve,reject)=>{const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>r.result.createObjectStore('audio',{keyPath:'key'});r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});}
+async function transaction(mode,fn){const db=await open();try{return await new Promise((resolve,reject)=>{const tx=db.transaction('audio',mode);let result;fn(tx.objectStore('audio'),v=>result=v);tx.oncomplete=()=>resolve(result);tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||new Error('Storage unavailable'));});}finally{db.close();}}
+export async function cacheKey(data){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(data)));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}
+export const getAudio=key=>transaction('readonly',(s,done)=>{const r=s.get(key);r.onsuccess=()=>done(r.result?.blob||null);});
+export async function putAudio(key,blob){if(blob.size>MAX_BYTES)return;return transaction('readwrite',(s)=>{const r=s.getAll();r.onsuccess=()=>{let rows=r.result.filter(x=>x.key!==key).sort((a,b)=>a.created-b.created);let bytes=rows.reduce((n,x)=>n+x.blob.size,0)+blob.size;while(rows.length>=MAX_ITEMS||bytes>MAX_BYTES){const old=rows.shift();if(!old)break;s.delete(old.key);bytes-=old.blob.size;}s.put({key,blob,created:Date.now()});};});}
+export const clearAudio=()=>transaction('readwrite',s=>s.clear());

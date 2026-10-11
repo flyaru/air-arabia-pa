@@ -1,202 +1,38 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#E81142">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Airport Announcer • Air Arabia PA</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%23E81142' width='100' height='100' rx='20'/><text y='70' font-size='55' x='50' text-anchor='middle' fill='white'>G9</text></svg>">
-  <link rel="stylesheet" href="style.css">
-  <link rel="manifest" href="manifest.json">
-</head>
-<body>
-  <header>
-    <div class="brand">
-      <div class="logo" aria-hidden="true">
-        <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <circle cx="32" cy="32" r="30" fill="#E81142"/>
-          <path d="M12 36c8-2 14-10 18-18 2 6 6 12 14 16-8 2-14 4-18 8-2-2-6-4-14-6z" fill="#fff"/>
-          <path d="M30 18c4 8 10 14 20 16-6 1-12 3-16 7-1-4-3-8-4-23z" fill="#fff" opacity="0.9"/>
-          <text x="32" y="52" text-anchor="middle" font-size="9" font-family="Arial,sans-serif" font-weight="700" fill="#fff">G9</text>
-        </svg>
-      </div>
-      <div>
-        <b>AIR ARABIA</b>
-        <span>GROUND OPS PA CONSOLE</span>
-      </div>
-    </div>
-    <div class="header-meta">
-      <div id="voiceBadge">HD NEURAL</div>
-      <div id="connection">● ONLINE</div>
-    </div>
-  </header>
-
-  <main>
-    <div class="card">
-      <div class="label">FLIGHT INFORMATION</div>
-      <div class="flight-grid">
-        <div>
-          <label for="airline">AIRLINE</label>
-          <select id="airline">
-            <option value="Air Arabia">Air Arabia</option>
-            <option value="Air Arabia Egypt">Air Arabia Egypt</option>
-            <option value="Air Arabia Maroc">Air Arabia Maroc</option>
-            <option value="Fly Jinnah">Fly Jinnah</option>
-          </select>
-        </div>
-        <div>
-          <label for="flight">FLIGHT NO.</label>
-          <input type="text" id="flight" value="G9 221" placeholder="G9 221">
-        </div>
-        <div>
-          <label for="gate">GATE</label>
-          <input type="text" id="gate" value="12" placeholder="12">
-        </div>
-        <div>
-          <label for="origin">ORIGIN</label>
-          <input type="text" id="origin" value="DMM" placeholder="DMM">
-        </div>
-        <div>
-          <label for="destination">DESTINATION</label>
-          <input type="text" id="destination" value="SHJ" placeholder="SHJ">
-        </div>
-        <div>
-          <label for="aircraft">AIRCRAFT</label>
-          <select id="aircraft">
-            <option value="A320">A320 (14-28)</option>
-            <option value="A321">A321 (18-36)</option>
-          </select>
-        </div>
-        <div>
-          <label for="timeOfDay">TIME</label>
-          <select id="timeOfDay">
-            <option value="Morning">Morning</option>
-            <option value="Afternoon">Afternoon</option>
-            <option value="Evening">Evening</option>
-          </select>
-        </div>
-        <div>
-          <label for="language">LANGUAGE</label>
-          <select id="language">
-            <option value="en-US">English</option>
-            <option value="ar-SA">العربية (Saudi)</option>
-            <option value="ur-PK">اردو</option>
-          </select>
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="label">ANNOUNCEMENT TEMPLATES</div>
-      <div class="buttons">
-        <button data-type="goToGate">Go to Gate</button>
-        <button data-type="boardRow1">Row Boarding 1st</button>
-        <button data-type="boardRow2">Row Remaining</button>
-        <button data-type="boardZoneC">Zone C</button>
-        <button data-type="boardZoneB">Zone B</button>
-        <button data-type="boardZoneRemain">Remaining Zones</button>
-        <button data-type="first">First Call</button>
-        <button data-type="second">Second Call</button>
-        <button data-type="final" class="red">Final Call</button>
-        <button data-type="priority">Priority</button>
-        <button data-type="families">Families</button>
-        <button data-type="assistance">Special Assist</button>
-        <button data-type="gateClosing" class="red">Gate Closing</button>
-        <button data-type="completed">Completed</button>
-        <button data-type="delayTentative" class="red">Tentative Delay</button>
-        <button data-type="delayFull" class="red">Delay</button>
-        <button data-type="gateChange">Gate Change</button>
-        <button data-type="resumed">Resumed</button>
-      </div>
-    </div>
-
-    <div class="card" id="delayCard" style="display:none;">
-      <div class="label">DELAY DETAILS</div>
-      <div class="flight-grid">
-        <div>
-          <label for="delayAmount">DURATION</label>
-          <input type="text" id="delayAmount" value="30 minutes" placeholder="30 minutes">
-        </div>
-        <div>
-          <label for="delayReason">REASON</label>
-          <input type="text" id="delayReason" placeholder="Optional reason">
-        </div>
-        <div style="grid-column: 1 / -1;">
-          <label for="etd">EST. DEPARTURE</label>
-          <input type="text" id="etd" placeholder="e.g. 14:30">
-        </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="label">SCRIPT & VOICE (HD Male · EN + UAE Arabic · Urdu for Fly Jinnah)</div>
-      <textarea id="preview" placeholder="Tap a template above..." rows="5"></textarea>
-      
-      <div class="voice-row">
-        <div>
-          <label for="voice">ANNOUNCER VOICE</label>
-          <select id="voice" disabled>
-            <option value="male">HD Male (EN Guy · UAE Hamdan · UR Asad)</option>
-          </select>
-        </div>
-        <div>
-          <label for="rate">SPEED <span id="rateVal">0.90</span>x</label>
-          <input type="range" id="rate" min="0.7" max="1.3" step="0.05" value="0.90">
-        </div>
-        <div class="check">
-          <input type="checkbox" id="chime" checked>
-          <label for="chime">Chime</label>
-        </div>
-        <div class="check">
-          <input type="checkbox" id="includeUrdu">
-          <label for="includeUrdu">Include Urdu (auto on for Fly Jinnah)</label>
-        </div>
-      </div>
-
-      <div class="actions">
-        <button id="previewBtn"><span aria-hidden="true">▶</span> PREVIEW</button>
-        <button id="stopBtn"><span aria-hidden="true">⏹</span> STOP</button>
-        <button id="playBtn" class="broadcast"><span aria-hidden="true">🔊</span> BROADCAST ON AIR</button>
-      </div>
-      <div id="status" class="statusbox" role="status" aria-live="polite">READY • HD Male · EN + UAE Arabic · Urdu auto on Fly Jinnah</div>
-    </div>
-
-    <div class="card">
-      <div class="label">PASSENGER PAGING</div>
-      <div class="flight-grid" style="margin-bottom:10px;">
-        <div>
-          <label for="title">TITLE</label>
-          <select id="title">
-            <option value="Mr.">Mr.</option>
-            <option value="Ms.">Ms.</option>
-            <option value="Mrs.">Mrs.</option>
-            <option value="Miss">Miss</option>
-          </select>
-        </div>
-        <div>
-          <label for="custom">FULL NAME</label>
-          <input type="text" id="custom" placeholder="Passenger name">
-        </div>
-      </div>
-      <div class="actions single">
-        <button id="customBtn" class="broadcast"><span aria-hidden="true">📢</span> PAGE PASSENGER</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="label">BROADCAST LOG</div>
-      <div id="history"></div>
-      <button id="clear" class="link">Clear History</button>
-    </div>
-  </main>
-
-  <footer>
-    Air Arabia Ground Operations • HD Neural · EN + UAE Arabic + Urdu
-  </footer>
-
-  <script src="app.js"></script>
-</body>
-</html>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#c70b36"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Station PA"><meta name="description" content="Air Arabia station announcement console"><title>Station PA · Air Arabia</title><link rel="manifest" href="manifest.json"><link rel="icon" href="icons/icon.svg"><link rel="apple-touch-icon" href="icons/icon-192.png"><link rel="stylesheet" href="style.css"><script type="module" src="app.js"></script></head>
+<body><a class="skip" href="#workspace">Skip to console</a>
+<header><div class="brand"><span class="brandmark" aria-hidden="true">↗</span><div><strong>Air Arabia</strong><small>STATION ANNOUNCEMENTS</small></div></div><div class="header-right"><span id="connection" class="pill">Checking connection</span><button id="install" class="quiet">Install app</button></div></header>
+<main id="workspace"><section class="intro"><div><p class="eyebrow">GROUND OPERATIONS / PA CONSOLE</p><h1>A clear voice.<br>A smooth departure.</h1><p>Prepare, review and play your station announcements.</p></div><div class="station-card"><span id="stationDisplay">DMM</span><div><strong id="clock">—</strong><small>Station local time</small></div></div></section>
+<div id="notice" class="notice" role="status">Checking premium voice service…</div>
+<div class="layout"><div class="left">
+<section class="card"><div class="section-title"><h2><span>01</span> Flight & station</h2><button id="reset" class="quiet">New flight</button></div>
+<form id="flightForm"><fieldset id="flightFields"><div class="form-grid">
+<label>Station code<input id="station" maxlength="3" value="DMM" autocapitalize="characters" autocomplete="off" required></label>
+<label>Station time zone<input id="timezone" value="Asia/Riyadh" list="timezones" maxlength="60" required></label>
+<label class="wide">Operating airline<select id="airline"><option>Air Arabia</option><option>Air Arabia Dammam</option><option>Air Arabia Abu Dhabi</option><option>Air Arabia Egypt</option><option>Air Arabia Maroc</option><option>Fly Jinnah</option></select></label>
+<label>Flight number<input id="flight" placeholder="G9 168" maxlength="9" autocapitalize="characters" autocomplete="off" required></label><label>Gate<input id="gate" placeholder="12" maxlength="12" autocomplete="off" required></label>
+<label>Origin<input id="origin" value="DMM" placeholder="Code or city" maxlength="60" list="airports" required></label><label>Destination<input id="destination" placeholder="Code or city" maxlength="60" list="airports" required></label>
+<label class="wide">Greeting<select id="greeting"><option value="morning">Good morning</option><option value="afternoon">Good afternoon</option><option value="evening">Good evening</option></select></label>
+</div></fieldset></form><p class="hint">Any station is supported. Enter a city name if its airport code is not recognised, then check its pronunciation in each script.</p>
+</section>
+<section class="card"><div class="section-title"><h2><span>02</span> Announcement</h2><span class="muted">Select a call</span></div><div id="templates"></div>
+<div id="zoneDetails" class="details" hidden><label>Zone or zones<input id="zone" value="A" placeholder="A or B + C" maxlength="15"></label><p class="hint">Use the sequence authorised for this station. The app does not enforce a boarding order.</p></div>
+<div id="rowDetails" class="details form-grid" hidden><label>First row<input id="rowFrom" type="number" min="1" max="60" value="14"></label><label>Last row<input id="rowTo" type="number" min="1" max="60" value="28"></label></div>
+<div id="delayDetails" class="details form-grid" hidden><label>Delay in minutes<input id="delayMinutes" type="number" min="1" max="1440" value="30"></label><label>Estimated departure (local)<input id="etd" type="time"></label><p class="hint wide">Add the confirmed reason to each language script. The app does not translate free text.</p></div>
+<div id="pageDetails" class="details" hidden><label>Passenger name<input id="passenger" maxlength="100" autocomplete="off" placeholder="As shown on travel document"></label><p class="hint">Passenger scripts and audio are not saved for offline use.</p></div>
+</section>
+<section class="card history-card"><div class="section-title"><h2><span>↺</span> Playback activity</h2><button id="clearHistory" class="quiet">Clear</button></div><p class="hint">This device only. Playback completion does not verify airport PA delivery.</p><ol id="history"><li>No playback activity yet.</li></ol><button id="exportHistory" class="quiet">Export activity</button></section>
+</div>
+<div class="right"><section class="card script-card"><div class="section-title"><h2><span>03</span> Review & prepare</h2><span class="pill" id="voiceBadge">Premium only</span></div>
+<fieldset id="languageFields"><legend>Announcement languages</legend><div class="language-options"><label><input type="checkbox" data-lang="en" checked> English</label><label><input type="checkbox" data-lang="ar" checked> العربية</label><label><input type="checkbox" data-lang="ur"> اردو</label></div></fieldset>
+<div class="script-tools"><strong id="selectedType">First call</strong><button id="rebuild" class="quiet">Rebuild scripts</button></div><div id="scripts"></div>
+<div class="voice-controls"><p class="hint">Natural voice delivery · original pitch and speed</p><label class="check"><input id="reviewed" type="checkbox"> I checked every script, flight, gate and language.</label><label class="check"><input id="cacheAudio" type="checkbox" checked> Keep prepared flight audio on this device for offline replay.</label></div>
+<details class="access"><summary>Station voice access</summary><label>Station access code<input id="accessCode" type="password" autocomplete="off" maxlength="256" placeholder="Provided by your administrator"></label><p class="hint">Kept in memory for this session. A verified premium voice service is required to prepare new audio.</p><button id="retryService" class="quiet">Check voice service</button></details>
+<button id="prepare" class="primary full">Prepare announcement <span>→</span></button>
+<div id="status" class="status" role="status" aria-live="polite">Enter the flight details, then review the scripts.</div>
+<div class="playback"><div class="playback-heading"><strong id="playbackLabel">No audio prepared</strong><span id="duration">00:00 / 00:00</span></div><progress id="progress" value="0" max="1" aria-label="Playback progress"></progress><div class="actions"><button id="play" class="primary" disabled>▶ Play audio</button><button id="stop" class="stop" disabled>■ Stop</button></div><p class="hint">Audio plays through this device’s selected output. Check the PA connection and volume before playing. Keep the app in the foreground.</p></div>
+</section><details class="card help"><summary>Install & operating notes</summary><p><b>iPhone / iPad:</b> Open in Safari, tap Share → Add to Home Screen.</p><p><b>Android:</b> Open in Chrome and choose Install app or Add to Home screen.</p><p>Prepared flight audio can replay offline on this device. New announcements need the premium voice service. Browser storage can be cleared by the phone.</p><p>The supplied reference is GOM Rev.15+, 15 August 2024. Scripts are adapted drafts; current station procedures and language review take precedence.</p><button id="clearAudio" class="quiet">Delete offline audio</button><p id="storageStatus" class="hint"></p></details></div></div>
+<footer><span>Air Arabia · Ground Operations</span><span>Station PA 5.0 · Release candidate</span></footer>
+</main><datalist id="airports"></datalist><datalist id="timezones"><option value="Asia/Riyadh"><option value="Asia/Dubai"><option value="Asia/Karachi"><option value="Africa/Cairo"><option value="Africa/Casablanca"><option value="Asia/Kolkata"><option value="Europe/Istanbul"><option value="UTC"></datalist>
+<dialog id="installHelp"><h2>Take the console with you</h2><p>On iPhone: Safari → Share → Add to Home Screen.</p><p>On Android: Chrome → menu → Install app or Add to Home screen.</p><p>Use a current browser and HTTPS. Installation and audio features vary by phone.</p><button id="closeInstall" class="primary">Got it</button></dialog>
+<noscript>This announcement console requires JavaScript. Please enable it in your browser.</noscript></body></html>
