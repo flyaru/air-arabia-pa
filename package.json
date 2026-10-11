@@ -3,6 +3,12 @@
   "version": "5.0.0",
   "private": true,
   "type": "module",
-  "scripts": {"test": "node --test tests/*.test.js", "check": "node --check app.js && node --check sw.js && node --check api/tts.js", "build": "node scripts/build.js"},
-  "engines": {"node": ">=22"}
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "check": "node --check app.js && node --check sw.js && node --check src/core.js && node --check src/templates.js && node --check src/cache.js && node --check api/config.js && node --check api/tts.js && node --check lib/quota.js && node --check lib/voice-service.js && node --check scripts/build.js",
+    "build": "npm run test && npm run check && node scripts/build.js"
+  },
+  "engines": {
+    "node": "24.x"
+  }
 }
