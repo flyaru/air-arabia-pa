@@ -1,11 +1,9 @@
-# Release checks — 12 October 2026
+# Release v6 — 12 October 2026
 
-Passed: 17 Node tests; syntax checks; dependency-free static build.
+Built and deployed: 04678880a9ad21158d6140106c5ceb3b84161ac3 (Vercel preview).
 
-Covered: all announcement templates in three languages, airport localisation, station/flight validation, operator-selected zones, cancellation generation guard, missing-script rejection, default zero-spend lock, HD-only voice configuration, per-station authentication, SSML escaping, method/origin/body rejection, unsupported locale and preview-voice rejection, shared quota denial and failure, successful mocked HD response, unauthorised requests, and no retries after provider failure.
+Changes: FREE phone voice speaking default; per-language device voice selection; on-device Prepare, Play and Stop; configurable boarding zones, English/Arabic/optional Urdu scripts; premium Azure HD option remains conditional.
 
-Not verified: live provider synthesis, actual speech quality, PA output hardware, iPhone/Android installation and playback, visual browser rendering, offline storage eviction/recovery on physical devices, concurrent real station load, Vercel production deployment.
+Automated verification: 17 tests passed; Node syntax checks; static build completed.
 
-Production blockers: eligible zero-personal-cost commercial hosting; approved premium voice funding/entitlement and secrets; shared quota service; corporate access design; current script and pronunciation approval; physical-device/PA acceptance.
-
-No paid service was enabled. No production readiness claim is made.
+Not yet proven: physical handset audible playback or speech naturalness; actual PA speaker output; every Android/iOS version; Urdu voice installation; offline device synthesis. Commercial roll-out requires supported licensing/hosting, station authorization, language verification and device acceptance.
