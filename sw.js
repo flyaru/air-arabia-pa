@@ -1,4 +1,4 @@
-const CACHE='station-pa-shell-v5-20261012',ASSETS=['/','/index.html','/style.css','/app.js','/src/core.js','/src/templates.js','/src/cache.js','/manifest.json','/icons/icon.svg','/icons/icon-192.png','/icons/icon-512.png'];
+const CACHE='station-pa-shell-v6-20261012',ASSETS=['/','/index.html','/style.css','/app.js','/src/core.js','/src/templates.js','/src/cache.js','/manifest.json','/icons/icon.svg','/icons/icon-192.png','/icons/icon-512.png'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)));});
 // Wait until all old clients close. Never reload an active announcement to activate an update.
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('station-pa-shell-')&&k!==CACHE).map(k=>caches.delete(k)))));});
