@@ -17,7 +17,7 @@ from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from pydantic import BaseModel, Field
-from . import tts
+from . import tts, admin
 from .audio import create_chime, master
 from .templates import TEMPLATES, BY_ID, FIELDS, DEFAULTS, AIRLINES
 from .localize import compose
@@ -46,6 +46,7 @@ async def lifespan(app):
  for task in list(TASKS):task.cancel()
  await asyncio.gather(*TASKS,return_exceptions=True)
 app=FastAPI(title='Air Arabia local PA',lifespan=lifespan)
+app.include_router(admin.router)
 app.add_middleware(TrustedHostMiddleware,allowed_hosts=['localhost','127.0.0.1','testserver','airarabia-gate-announcer.vercel.app',os.getenv('VERCEL_URL','localhost'),os.getenv('VERCEL_PROJECT_PRODUCTION_URL','localhost')])
 @app.middleware('http')
 async def local_only(request:Request,call_next):
@@ -53,6 +54,7 @@ async def local_only(request:Request,call_next):
  if origin and urlparse(origin).netloc != request.headers.get('host'):
   return Response('Cross-origin requests are not allowed',status_code=403)
  response=await call_next(request)
+ if request.url.path.startswith('/api/') or request.url.path in ('/', '/app.js', '/admin.js'): response.headers['Cache-Control']='no-store'
  response.headers['X-Content-Type-Options']='nosniff'
  response.headers['Referrer-Policy']='no-referrer'
  response.headers['Content-Security-Policy']="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self' blob:; connect-src 'self'; object-src 'none'; frame-ancestors 'none'"
@@ -79,13 +81,14 @@ def prepared(r):
   text=r.text.strip()
   if not text:raise HTTPException(422,'Enter announcement text')
  else:
-  template=BY_ID.get(r.template_id)
+  template=next((t for t in admin.effective_templates() if t['id']==r.template_id),None)
   if not template:raise HTTPException(404,'Unknown template')
   try:text=compose(template,r.variables,r.language)
   except (ValueError,KeyError) as e:raise HTTPException(422,str(e))
  voice=r.voice or tts.VOICE_MAP[r.language][0]
  voice=tts.STATE['substitutions'].get(voice,voice)
  if not __import__('re').fullmatch(r.language+r'-[A-Z]{2}-[A-Za-z]+Neural',voice):raise HTTPException(422,'Choose a listed voice for this language')
+ admin.allowed(voice)
  canonical=r.model_dump();canonical['variables']={k:r.variables.get(k,'') for k in BY_ID[r.template_id]['fields']} if r.text is None else {}
  key=hashlib.sha256(json.dumps({'version':3,'request':canonical,'spoken':text,'voice':voice},sort_keys=True,ensure_ascii=False).encode()).hexdigest()
  return text,voice,key
@@ -113,9 +116,10 @@ async def voices():
  if HOSTED and not tts.STATE['validated']:
   try:await asyncio.wait_for(tts.validate_voices(),timeout=8)
   except asyncio.TimeoutError:pass
- return tts.STATE
+ cfg=admin.config()
+ return {**tts.STATE,'voices':{lang:[v for v in names if v not in cfg['locked_voices']] for lang,names in tts.STATE['voices'].items()},'revision':cfg['revision']}
 @app.get('/api/templates')
-def templates():return {'templates':TEMPLATES,'fields':FIELDS,'defaults':DEFAULTS,'airlines':AIRLINES}
+def templates():return {'templates':admin.effective_templates(),'fields':FIELDS,'defaults':DEFAULTS,'airlines':AIRLINES}
 @app.post('/api/preview')
 def preview(r:Render):
  text,voice,key=prepared(r);return {'text':text,'voice':voice,'key':key}
@@ -149,6 +153,9 @@ def audio(key:str):
  if not re.fullmatch('[a-f0-9]{64}',key):raise HTTPException(404,'Not found')
  path=cache_dir()/(key+'.mp3')
  if not path.exists():raise HTTPException(404,'Not cached')
+ meta=path.with_suffix('.json')
+ if not meta.exists():raise HTTPException(404,'Not found')
+ admin.allowed(json.loads(meta.read_text())['voice'])
  return FileResponse(path,media_type='audio/mpeg')
 @app.get('/api/cache/export')
 def export():
@@ -158,7 +165,9 @@ def export():
   for p in cache_dir().glob('*.json'):
    audio=p.with_suffix('.mp3')
    if audio.exists():
-    m=json.loads(p.read_text(encoding='utf-8'));z.write(audio,'announcements/'+audio.name);manifest.append(m)
+    m=json.loads(p.read_text(encoding='utf-8'))
+    if m['voice'] in admin.config()['locked_voices']:continue
+    z.write(audio,'announcements/'+audio.name);manifest.append(m)
   z.writestr('announcements/manifest.json',json.dumps(manifest,ensure_ascii=False,indent=2))
  return Response(data.getvalue(),media_type='application/zip',headers={'Content-Disposition':'attachment; filename="AirArabia-announcements.zip"'})
 class Settings(BaseModel):
