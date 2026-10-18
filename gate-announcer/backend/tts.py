@@ -10,7 +10,7 @@ import edge_tts
 
 VOICE_MAP={
 'en':['en-US-AriaNeural','en-US-JennyNeural','en-US-GuyNeural','en-GB-SoniaNeural','en-GB-RyanNeural'],
-'ar':['ar-AE-FatimaNeural','ar-AE-HamdanNeural','ar-SA-ZariyahNeural','ar-EG-SalmaNeural'],
+'ar':['ar-AE-FatimaNeural','ar-AE-HamdanNeural','ar-SA-HamedNeural','ar-SA-ZariyahNeural','ar-EG-ShakirNeural','ar-EG-SalmaNeural'],
 'ur':['ur-PK-UzmaNeural','ur-PK-AsadNeural']}
 ROOT=Path('/tmp/airarabia-pa') if os.getenv('VERCEL') else Path(__file__).resolve().parent.parent
 ROOT.mkdir(parents=True,exist_ok=True)
@@ -41,6 +41,8 @@ async def validate_voices():
      if replacement not in resolved[lang]:resolved[lang].append(replacement)
      if replacement!=voice:substitutions[voice]=replacement;warnings.append(f'{voice} missing; using {replacement}')
     else:warnings.append(f'No neural voice available for {lang}')
+  for lang in resolved:
+   resolved[lang] += sorted(n for n in names if n.startswith(lang+'-') and n not in resolved[lang])
   STATE.update(validated=True,voices=resolved,substitutions=substitutions,warnings=warnings)
   (ROOT/'voice-catalog.json').write_text(json.dumps(STATE,ensure_ascii=False),encoding='utf-8')
  except Exception as e:

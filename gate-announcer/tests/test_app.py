@@ -72,3 +72,18 @@ def test_parallel_dedup_and_build(tmp_path,monkeypatch):
   await main.run_job('test',b)
   assert main.JOBS['test']['succeeded']==2 and main.JOBS['test']['status']=='complete'
  asyncio.run(run())
+
+
+def test_all_group_airlines_and_calls():
+ from backend.templates import AIRLINES
+ import pytest
+ for code in AIRLINES:
+  for call in ('first','second','final','named_final','cancel'):
+   for lang in ('en','ar','ur'):
+    text=compose(BY_ID[call],{**DEFAULTS,'airline':code,'flight':code+' 123'},lang)
+    assert AIRLINES[code][lang] in text
+    assert '[' not in text
+ with pytest.raises(ValueError,match='prefix'):
+  compose(BY_ID['first'],{**DEFAULTS,'airline':'9P'},'en')
+ assert 'ar-SA-HamedNeural' in tts.VOICE_MAP['ar']
+ assert 'ur-PK-UzmaNeural' in tts.VOICE_MAP['ur']

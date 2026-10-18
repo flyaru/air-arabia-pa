@@ -19,7 +19,7 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from pydantic import BaseModel, Field
 from . import tts
 from .audio import create_chime, master
-from .templates import TEMPLATES, BY_ID, FIELDS, DEFAULTS
+from .templates import TEMPLATES, BY_ID, FIELDS, DEFAULTS, AIRLINES
 from .localize import compose
 ROOT=Path(__file__).resolve().parent.parent
 HOSTED=bool(os.getenv('VERCEL'))
@@ -85,7 +85,7 @@ def prepared(r):
   except (ValueError,KeyError) as e:raise HTTPException(422,str(e))
  voice=r.voice or tts.VOICE_MAP[r.language][0]
  voice=tts.STATE['substitutions'].get(voice,voice)
- if voice not in tts.STATE['voices'][r.language] and voice not in tts.VOICE_MAP[r.language]:raise HTTPException(422,'Choose a listed voice for this language')
+ if not __import__('re').fullmatch(r.language+r'-[A-Z]{2}-[A-Za-z]+Neural',voice):raise HTTPException(422,'Choose a listed voice for this language')
  canonical=r.model_dump();canonical['variables']={k:r.variables.get(k,'') for k in BY_ID[r.template_id]['fields']} if r.text is None else {}
  key=hashlib.sha256(json.dumps({'version':3,'request':canonical,'spoken':text,'voice':voice},sort_keys=True,ensure_ascii=False).encode()).hexdigest()
  return text,voice,key
@@ -115,7 +115,7 @@ async def voices():
   except asyncio.TimeoutError:pass
  return tts.STATE
 @app.get('/api/templates')
-def templates():return {'templates':TEMPLATES,'fields':FIELDS,'defaults':DEFAULTS}
+def templates():return {'templates':TEMPLATES,'fields':FIELDS,'defaults':DEFAULTS,'airlines':AIRLINES}
 @app.post('/api/preview')
 def preview(r:Render):
  text,voice,key=prepared(r);return {'text':text,'voice':voice,'key':key}

@@ -2,6 +2,7 @@
 import re
 from datetime import date
 from num2words import num2words
+from .templates import AIRLINES
 DIGITS={'en':'zero one two three four five six seven eight niner'.split(),
 'ar':'صفر واحد اثنان ثلاثة أربعة خمسة ستة سبعة ثمانية تسعة'.split(),
 'ur':'صفر ایک دو تین چار پانچ چھ سات آٹھ نو'.split()}
@@ -33,8 +34,11 @@ def date_spoken(s,lang):
  months={'en':['January','February','March','April','May','June','July','August','September','October','November','December'], 'ar':'يناير فبراير مارس أبريل مايو يونيو يوليو أغسطس سبتمبر أكتوبر نوفمبر ديسمبر'.split(),'ur':'جنوری فروری مارچ اپریل مئی جون جولائی اگست ستمبر اکتوبر نومبر دسمبر'.split()}
  return f'{cardinal(d.day,lang)} {months[lang][d.month-1]} {cardinal(d.year,lang)}'
 def value(key,s,lang):
+ if key=='airline':return AIRLINES[s][lang]
+ if key=='boarding_group':
+  return {'Zone A':{'en':'Zone A','ar':'المنطقة إيه','ur':'زون اے'},'Zone C':{'en':'Zone C','ar':'المنطقة سي','ur':'زون سی'},'Rows 14–28':{'en':'rows fourteen to twenty-eight','ar':'الصفوف من أربعة عشر إلى ثمانية وعشرين','ur':'صف چودہ سے اٹھائیس'},'Rows 18–36':{'en':'rows eighteen to thirty-six','ar':'الصفوف من ثمانية عشر إلى ستة وثلاثين','ur':'صف اٹھارہ سے چھتیس'}}[s][lang]
  if key=='flight':
-  if not re.fullmatch(r'G9\s?[0-9]{3}',s):raise ValueError('Flight must be G9 followed by exactly 3 digits')
+  if not re.fullmatch(r'(?:G9|3O|E5|3L|9P|4P)\s?[0-9]{1,4}',s):raise ValueError('Use a group airline code followed by 1–4 digits')
   return identifier(s,lang)
  if key in ('gate','new_gate','old_gate','belt','terminal','aircraft'):
   return identifier(s,lang) if re.search('[A-Za-z]',s) else cardinal(s,lang)
@@ -53,7 +57,12 @@ def compose(template,variables,lang):
  missing=[k for k in template['fields'] if not str(variables.get(k,'')).strip()]
  if missing:raise ValueError('Missing fields: '+', '.join(missing))
  v=dict(variables); v.update(row_start='18' if v.get('aircraft')=='A321' else '14',row_end='36' if v.get('aircraft')=='A321' else '28')
+ airline=v.get('airline','G9')
+ if airline not in AIRLINES:raise ValueError('Choose a group airline')
+ if 'flight' in template['fields'] and not v['flight'].startswith(airline):raise ValueError('Flight prefix must match the selected airline')
  source=template['texts'][lang]
+ if airline!='G9':
+  for original in {'en':['Air Arabia','AirArabia'],'ar':['العربية للطيران'],'ur':['ایئر عربیہ']}[lang]:source=source.replace(original,AIRLINES[airline][lang])
  if lang=='en':source=source.replace('[flight]to','[flight] to')
  # Spoken interpretation of written operator directions; source preview remains verbatim.
  if template['id']=='row' and v.get('aircraft')=='A321':source=source.replace('row 14 to row 28','row 18 to row 36')

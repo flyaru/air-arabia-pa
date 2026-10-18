@@ -126,3 +126,37 @@ for t in TEMPLATES:
 BY_ID={t['id']:t for t in TEMPLATES}
 
 BY_ID['page_staff']['verification']['en']='GOM-derived adaptation — passenger name repeated; see source transcription'
+
+# Operator names follow the six AOC codes supplied in AAG/GSA/002/2026.
+AIRLINES={
+ 'G9':{'label':'G9 · Air Arabia','en':'Air Arabia','ar':'العربية للطيران','ur':'ایئر عربیہ'},
+ '3O':{'label':'3O · Air Arabia Maroc','en':'Air Arabia Maroc','ar':'العربية للطيران المغرب','ur':'ایئر عربیہ مراکش'},
+ 'E5':{'label':'E5 · Air Arabia Egypt','en':'Air Arabia Egypt','ar':'العربية للطيران مصر','ur':'ایئر عربیہ مصر'},
+ '3L':{'label':'3L · Air Arabia Abu Dhabi','en':'Air Arabia Abu Dhabi','ar':'العربية للطيران أبوظبي','ur':'ایئر عربیہ ابوظبی'},
+ '9P':{'label':'9P · Fly Jinnah','en':'Fly Jinnah','ar':'فلاي جناح','ur':'فلائی جناح'},
+ '4P':{'label':'4P · Air Arabia — Dammam','en':'Air Arabia','ar':'العربية للطيران','ur':'ایئر عربیہ'},
+}
+FIELDS['airline']={'label':'Operating airline','default':'G9','choices':list(AIRLINES)}
+FIELDS['flight']={'label':'Flight number','default':'G9 123','pattern':r'^(G9|3O|E5|3L|9P|4P)\s?[0-9]{1,4}$'}
+BY_ID['final']['id']='named_final'
+BY_ID['final']['title']='Named passenger final call'
+for id,title,en,ar,ur in [
+ ('first','First call','Ladies and gentlemen, this is the first boarding call for [airline] flight [flight] to [destination]. Passengers seated in [boarding_group] are invited to proceed to gate number [gate]. Please have your boarding pass and travel documents ready. Thank you.',
+ 'السيدات والسادة، هذا هو النداء الأول للصعود إلى رحلة [airline] [flight] المتجهة إلى [destination]. ندعو ركاب [boarding_group] للتوجه إلى البوابة رقم [gate]. يرجى تجهيز بطاقات الصعود ووثائق السفر. شكراً لكم.',
+ 'خواتین و حضرات، [destination] جانے والی [airline] کی پرواز [flight] کی بورڈنگ کے لیے یہ پہلا اعلان ہے۔ [boarding_group] کے مسافر گیٹ نمبر [gate] پر تشریف لائیں۔ براہ کرم اپنا بورڈنگ پاس اور سفری دستاویزات تیار رکھیں۔ شکریہ۔'),
+ ('second','Second call','Ladies and gentlemen, this is the second boarding call for [airline] flight [flight] to [destination]. All remaining passengers are requested to proceed to gate number [gate] for boarding. Please have your boarding pass and travel documents ready. Thank you.',
+ 'السيدات والسادة، هذا هو النداء الثاني للصعود إلى رحلة [airline] [flight] المتجهة إلى [destination]. يرجى من جميع الركاب المتبقين التوجه إلى البوابة رقم [gate] للصعود، مع تجهيز بطاقات الصعود ووثائق السفر. شكراً لكم.',
+ 'خواتین و حضرات، [destination] جانے والی [airline] کی پرواز [flight] کی بورڈنگ کے لیے یہ دوسرا اعلان ہے۔ تمام باقی مسافر گیٹ نمبر [gate] پر تشریف لائیں۔ اپنا بورڈنگ پاس اور سفری دستاویزات تیار رکھیں۔ شکریہ۔'),
+ ('final','Final call','Ladies and gentlemen, this is the final boarding call for [airline] flight [flight] to [destination]. All remaining passengers must proceed immediately to gate number [gate]. The flight is ready for departure. Thank you.',
+ 'السيدات والسادة، هذا هو النداء الأخير للصعود إلى رحلة [airline] [flight] المتجهة إلى [destination]. يرجى من جميع الركاب المتبقين التوجه فوراً إلى البوابة رقم [gate]. الرحلة جاهزة للمغادرة. شكراً لكم.',
+ 'خواتین و حضرات، [destination] جانے والی [airline] کی پرواز [flight] کے لیے یہ آخری اعلان ہے۔ تمام باقی مسافر فوراً گیٹ نمبر [gate] پر پہنچیں۔ پرواز روانگی کے لیے تیار ہے۔ شکریہ۔')]:
+ add(id,'Boarding calls',title,en,ar,ur)
+ TEMPLATES[-1]['operation']='all'
+FIELDS['boarding_group']={'label':'First-call boarding group','default':'Zone A','choices':['Zone A','Zone C','Rows 14–28','Rows 18–36']}
+# Keep original GOM source text intact; substitute operator names only at speech composition.
+for t in TEMPLATES:
+ if any(x in t['texts']['en'] for x in ('Air Arabia','AirArabia','[airline]')):
+  if 'airline' not in t['fields']:t['fields'].insert(0,'airline')
+TEMPLATES.sort(key=lambda t: {'first':0,'second':1,'final':2}.get(t['id'],3))
+BY_ID={t['id']:t for t in TEMPLATES}
+DEFAULTS={k:v['default'] for k,v in FIELDS.items()}
